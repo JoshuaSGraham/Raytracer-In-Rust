@@ -1,3 +1,4 @@
+mod Vec3;
 
 fn main() {
     //image 
