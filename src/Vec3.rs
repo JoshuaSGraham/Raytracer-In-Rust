@@ -33,6 +33,10 @@ impl Vec3 {
             z: self.x * other_vec.y - other_vec.y * other_vec.x,
         }
     }
+
+        /* fn unit_vector(self) -> Vec3{
+        self / self.length()
+         } */
 }
 
 
@@ -102,6 +106,60 @@ impl ops::Mul<f64> for Vec3{
     }
 }
 
+impl ops::AddAssign for Vec3{
+    fn add_assign(&mut self, rhs:Self) {
+        *self = Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl ops::MulAssign<f64> for Vec3{
+    fn mul_assign(&mut self, rhs: f64){
+        *self = Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+impl ops::DivAssign<f64> for Vec3{
+    fn div_assign(&mut self, rhs: f64) {
+        *self *= 1.0/rhs;
+    }
+}
+
+//may need <'a> (lifetime) at fn index<'a>
+impl ops::Index<usize> for Vec3{
+    type Output = f64;
+    fn index(&self, index: usize) -> &f64{
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _=> unreachable!(),
+        }
+    }
+}
+
+impl ops::IndexMut<usize> for Vec3{
+    //type Output = &mut f64;
+    fn index_mut(&mut self, index: usize) -> &mut f64 {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            _=> unreachable!(),
+        }
+    }
+}
+
+
+
+//Tests
 
 #[cfg(test)]
 mod tests{
@@ -154,5 +212,13 @@ mod tests{
         let vec1 = Vec3{x: 2.0, y: 4.0, z: 6.0};
         let num = 2.0;
         assert_eq!(vec1 / num, Vec3{x: 1.0, y: 2.0, z: 3.0});
+    }
+
+    #[test]
+    fn test_add_assign(){
+        let mut vec1 = Vec3{x: 5.0, y: 5.0, z: 5.0};
+        let vec2 = Vec3{x: 5.0, y: 5.0, z: 5.0};
+        vec1 += vec2;
+        assert_eq!(vec1, Vec3{x: 10.0, y: 10.0, z: 10.0});
     }
 }
