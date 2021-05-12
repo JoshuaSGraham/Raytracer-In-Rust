@@ -1,26 +1,54 @@
-mod Vec3;
+use ray::Ray;
+use vec3::Vec3;
+
+use crate::{utility::write_color, vec3::{Color, Point3}};
+
+mod vec3;
+mod utility;
+mod ray;
+
+
+fn ray_color(r: &Ray) -> Color{
+    let unit_direction : Vec3 = r.direction().unit_vector();
+    let t = 0.5 * (unit_direction.y() + 1.0); 
+    Color{x: 1.0,y: 1.0,z: 1.0} * (1.0 - t)  + Color{x: 0.5, y: 0.7, z: 1.0} * t 
+}
 
 fn main() {
     //image 
-    let image_width = 256;
-    let image_height = 256;
+    let aspect_ratio = 16.0/9.0;
+    let image_width = 400;
+    let image_height = image_width / aspect_ratio as i32;
 
-    //render
+    //Camera
+    let viewport_height = 2.0;
+    let viewport_width = aspect_ratio * viewport_height;
+    let focal_length = 1.0;
+
+    let origin = Point3{x: 0.0,y: 0.0,z: 0.0};
+    let horizontal = Vec3{x: viewport_width,y: 0.0,z: 0.0};
+    let vertical = Vec3{x: 0.0,y: viewport_height, z: 0.0};
+    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3{x: 0.0,y: 0.0, z: focal_length};
+
+    //Render
     print!("P3\n{} {} \n255\n", image_width, image_height);
 
     for height_index in (0..image_height).rev() {
         eprint!("\rScanlines remaining: {}", height_index);
         for width_index in 0..image_width {
-            
-            let red = width_index as f64 / (image_width -1) as f64;
-            let green = height_index as f64 / (image_height -1) as f64;
-            let blue = 0.25; 
 
-            let ir : i32 = (255.999 * red) as i32;
-            let ig : i32 = (255.999 * green) as i32;
-            let ib : i32 = (255.999 * blue) as i32;
+            let u = width_index as f64 / (image_width-1) as f64;
+            let v = height_index as f64 / (image_height-1) as f64;
 
-            print!("{} {} {}\n", ir, ig, ib);
+            let r = Ray{origin: origin, direction: lower_left_corner + horizontal * u + vertical * v - origin};
+            let pixel_color = ray_color(&r);
+
+
+            //let red = width_index as f64 / (image_width -1) as f64;
+            //let green = height_index as f64 / (image_height -1) as f64;
+            //let blue = 0.25; 
+            //let pixel_color : Color = Color{x: red, y: green, z: blue};
+            write_color(pixel_color);
         }
     }
     eprintln!("\nDone");
