@@ -23,11 +23,11 @@ impl Vec3 {
         self.z
     }
 
-    fn dot(&self, other_vec: &Vec3) -> f64{
+    pub fn dot(&self, other_vec: &Vec3) -> f64{
         (self.x * other_vec.x) + (self.y * other_vec.y) + (self.z * other_vec.z) 
     }
 
-    fn cross(&self, other_vec: &Vec3) -> Vec3{
+    pub fn cross(&self, other_vec: &Vec3) -> Vec3{
         Vec3{
             x: self.y * other_vec.z - self.z * other_vec.y,
             y: self.z * other_vec.x - self.x * other_vec.z,

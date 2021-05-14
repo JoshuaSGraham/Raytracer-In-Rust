@@ -8,17 +8,38 @@ mod utility;
 mod ray;
 
 
+fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> f64{
+    //let oc: Vec3 = r.origin() - center;
+    let oc: Vec3 = r.origin() - *center;
+    let a = r.direction().dot(&r.direction());
+    let b = 2.0 * oc.dot(&r.direction());
+    let c = oc.dot(&oc) - radius * radius;
+    let discriminant = b*b - 4.0 * a *c;
+    if (discriminant < 0.0){
+        return -1.0;
+    }
+    else{
+        return (-b -discriminant.sqrt()) / (2.0 * a);
+    }
+}
+
 fn ray_color(r: &Ray) -> Color{
+
+    let mut t = hit_sphere(&Point3{x: 0.0, y: 0.0, z: -1.0}, 0.5, r);
+    if (t > 0.0){
+        let n: Vec3 = (r.at(t) - Vec3{x: 0.0, y: 0.0,z: -1.0}).unit_vector();
+        return Color{x: n.x()+1.0,y: n.y()+1.0, z: n.z()+1.0} * 0.5;
+    }
     let unit_direction : Vec3 = r.direction().unit_vector();
-    let t = 0.5 * (unit_direction.y() + 1.0); 
-    Color{x: 1.0,y: 1.0,z: 1.0} * (1.0 - t)  + Color{x: 0.5, y: 0.7, z: 1.0} * t 
+    t = 0.5 * (unit_direction.y() + 1.0); 
+    return Color{x: 1.0, y: 1.0, z: 1.0} * (1.0-t) + Color{x: 0.5, y: 0.7, z: 1.0} * t;
 }
 
 fn main() {
     //image 
     let aspect_ratio = 16.0/9.0;
     let image_width = 400;
-    let image_height = image_width / aspect_ratio as i32;
+    let image_height = (image_width as f64 / aspect_ratio as f64) as i32;
 
     //Camera
     let viewport_height = 2.0;
