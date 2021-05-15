@@ -36,8 +36,11 @@ impl Vec3 {
     }
 
     fn length(&self) -> f64 {
-        //look into sqrt
-        ( self.x* self.x + self.y* self.y + self.z* self.z).sqrt()
+       &self.length_squared().sqrt()
+    }
+
+    fn length_squared(&self) -> f64 {
+        self.x* self.x + self.y* self.y + self.z* self.z
     }
 
     pub fn unit_vector(self) -> Vec3{
@@ -165,16 +168,6 @@ impl ops::IndexMut<usize> for Vec3{
         }
     }
 }
-
-
-
-fn write_color(pixel_color : Color){
-    // Write the translated [0,255] value of each color component
-
-
-}
-
-
 
 
 //Tests
