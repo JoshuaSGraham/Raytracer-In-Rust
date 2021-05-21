@@ -6,6 +6,8 @@ use crate::{utility::write_color, vec3::{Color, Point3}};
 mod vec3;
 mod utility;
 mod ray;
+mod hittable;
+mod sphere;
 
 
 fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> f64{
