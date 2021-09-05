@@ -1,7 +1,7 @@
 use core::f64;
 use std::{ops, usize};
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct Vec3{
 
    pub x: f64,
@@ -10,6 +10,10 @@ pub struct Vec3{
 }
 
 impl Vec3 {
+
+    pub fn new(x: f64, y: f64, z: f64) -> Vec3{
+        Vec3 { x, y, z}
+    }
 
     pub fn x(&self) -> f64{
         self.x
@@ -43,8 +47,8 @@ impl Vec3 {
         self.x* self.x + self.y* self.y + self.z* self.z
     }
 
-    pub fn unit_vector(self) -> Vec3{
-        self / self.length()
+    pub fn unit_vector(v: &Vec3) -> Vec3{
+        *v / v.length()
     } 
 }
 
@@ -261,7 +265,7 @@ mod tests{
     //look at how to properly test this method
     #[test]
     fn test_index_mut(){
-        let mut vec1 = Vec3{x: 1.0, y: 2.0, z: 3.0};
+        let vec1 = Vec3{x: 1.0, y: 2.0, z: 3.0};
         assert_eq!(vec1[0], 1.0);
         assert_eq!(vec1[1], 2.0);
         assert_eq!(vec1[2], 3.0);

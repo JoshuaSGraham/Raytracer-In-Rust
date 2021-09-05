@@ -6,7 +6,7 @@ pub struct Sphere{
 }
 
 impl Sphere{
-    pub fn new(center: Point3, radius: f64) -> Self{
+    pub fn new(center: Point3, radius: f64) -> Sphere{
         Sphere{
             center,
             radius,
@@ -15,32 +15,33 @@ impl Sphere{
 }
 
 impl Hittable for Sphere{
-    fn hit(&self , ray: &Ray, t_min: f64, t_max: f64, record: &HitRecord) -> bool{
-        let oc: Vec3 = ray.origin() - self.center;
-        let a = ray.direction().length_squared();
-        let half_b = oc.dot(&ray.direction());
-        let c = oc.length_squared() - self.radius* self.radius;
+    fn hit(&self , ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool{
+        let oc = ray.origin() - self.center;
+        let a = Vec3::dot(&ray.direction(), &ray.direction());
+        let b = 2.0 * Vec3::dot(&oc, &ray.direction());
+        let c = Vec3::dot(&oc, &oc) - self.radius * self.radius;
 
-        let discriminant = half_b*half_b - a*c;
-        if discriminant < 0.0 {
-            return false;
-        }
-        let sqrtd = discriminant.sqrt();
+        let discriminant = b * b - 4.0 * a * c;
 
-        //Find the nearest root that lies in the acceptable range
-        let root = (-half_b - sqrtd) / a;
-        if root < t_min || t_max < root {
-            root = (-half_b + sqrtd) / a;
-            if root < t_min || t_max < root {
-                return false;
+        if discriminant > 0.0 {
+            let mut temp = (-b -discriminant.sqrt()) / 2.0 * a;
+
+            if temp < t_max && temp > t_min {
+                record.set_t(temp);
+                record.set_p(ray.point_at(record.t()));
+                record.set_normal((record.p() - self.center) / self.radius);
+                return true;
+            }
+
+            temp = (-b + discriminant.sqrt()) / a;
+            if temp < t_max && temp > t_min{
+                record.set_t(temp);
+                record.set_p(ray.point_at(record.t()));
+                record.set_normal((record.p() - self.center) / self.radius);
+                return true;
             }
         }
 
-        record.t = root;
-        record.p = ray.at(record.t);
-        let outward_normal: Vec3 = (record.p - self.center) / self.radius;
-        record.set_face_normal(ray, &outward_normal);
-
-        return true;
+        return false;
     }
 }
