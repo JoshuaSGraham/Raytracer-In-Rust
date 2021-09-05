@@ -9,19 +9,19 @@ pub struct Ray{
 
 impl Ray {
 
+    pub fn new(origin: Point3, direction: Vec3) -> Ray{
+        Ray {
+            origin,
+            direction,
+        }
+    }
+
     pub fn origin(self) -> Point3{
         self.origin
     }
 
     pub fn direction(self) -> Vec3{
         self.direction
-    }
-
-    pub fn new(origin: Point3, direction: Vec3) -> Self{
-        Ray {
-            origin,
-            direction,
-        }
     }
 
     pub fn point_at(self, t: f64) -> Vec3{
