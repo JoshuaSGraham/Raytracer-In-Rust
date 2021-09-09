@@ -24,7 +24,7 @@ impl Hittable for Sphere{
         let discriminant = b * b - a * c;
 
         if discriminant > 0.0 {
-            let mut temp = (-b -discriminant.sqrt()) / 2.0 * a;
+            let mut temp = (-b -discriminant.sqrt()) / a;
 
             if temp < t_max && temp > t_min {
                 record.set_t(temp);
