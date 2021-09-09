@@ -31,20 +31,20 @@ impl Vec3 {
         vec1.x() * vec2.x() + vec1.y() * vec2.y() + vec1.z() * vec2.z()
     }
 
-    pub fn cross(&self, other_vec: &Vec3) -> Vec3{
+    pub fn cross(v1: &Vec3, v2: &Vec3) -> Vec3{
         Vec3{
-            x: self.y * other_vec.z - self.z * other_vec.y,
-            y: self.z * other_vec.x - self.x * other_vec.z,
-            z: self.x * other_vec.y - self.y * other_vec.x,
+            x: v1.y() * v2.z() - v1.z() * v2.y(),
+            y: v1.z() * v2.x() - v1.x() * v2.z(),
+            z: v1.x() * v2.y() - v1.y() * v2.x(),
         }
     }
 
-    pub fn length(&self) -> f64 {
-       self.length_squared().sqrt()
+    pub fn length(self) -> f64 {
+       (self.x() * self.x() + self.y() * self.y() + self.z() * self.z()).sqrt()
     }
 
-    pub fn length_squared(&self) -> f64 {
-        self.x* self.x + self.y* self.y + self.z* self.z
+    pub fn squared_length(self) -> f64 {
+        self.x() * self.x() + self.y() * self.y() + self.z() * self.z()
     }
 
     pub fn unit_vector(v: &Vec3) -> Vec3{

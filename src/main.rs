@@ -3,6 +3,7 @@ use hittable::{HitRecord, Hittable};
 use ray::Ray;
 use utility::infinity;
 use vec3::Vec3;
+use material::Material;
 
 use rand::prelude::*;
 
@@ -15,21 +16,34 @@ mod ray;
 mod sphere;
 mod utility;
 mod vec3;
+mod material;
 
 fn ray_color(r: &Ray, world: &HittableList) -> Vec3 {
     let mut rec: HitRecord = HitRecord::default();
 
     if world.hit(r, 0.0, f64::MAX, &mut rec) {
-        return Vec3::new(
-            rec.normal().x() + 1.0,
-            rec.normal().y() + 1.0,
-            rec.normal().z() + 1.0,
-        ) * 0.5;
-    } else {
+        let target = rec.p() + rec.normal() + random_in_unit_sphere();
+        return ray_color(&Ray::new(rec.p(), target - rec.p()), &world) * 0.5;
+    } 
+    else {
         let unit_direction = Vec3::unit_vector(&r.direction());
         let t = 0.5 * (unit_direction.y() + 1.0);
 
         Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+    }
+}
+
+fn random_in_unit_sphere() -> Vec3 {
+    let mut p = Vec3::default();
+    let mut rng = rand::thread_rng();
+
+    loop {
+        p = Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 2.0
+            - Vec3::new(1.0, 1.0, 1.0);
+
+        if p.squared_length() < 1.0 {
+            return p;
+        }
     }
 }
 
@@ -66,9 +80,9 @@ fn main() {
                 let r = &cam.get_ray(u, v);
                 color = color + ray_color(&r, &world);
             }
-            
-            color = color / sample_count as f64;
 
+            color = color / sample_count as f64;
+            color = Vec3::new(color.x().sqrt(), color.y().sqrt(), color.z().sqrt());
 
             let ir = (255.99 * color.x()) as i64;
             let ig = (255.99 * color.y()) as i64;
