@@ -2,8 +2,8 @@ use camera::Camera;
 use hittable::{HitRecord, Hittable};
 use ray::Ray;
 use utility::infinity;
-use vec3::Vec3;
-use material::Material;
+use vec3::{Color, Vec3};
+use material::{scatter, Material};
 
 use rand::prelude::*;
 
@@ -18,32 +18,24 @@ mod utility;
 mod vec3;
 mod material;
 
-fn ray_color(r: &Ray, world: &HittableList) -> Vec3 {
-    let mut rec: HitRecord = HitRecord::default();
+fn ray_color(r: &Ray, world: &HittableList, depth: i64) -> Vec3 {
+    
+    if let Some(rec) = world.hit(r, 0.001, f64::MAX) {
+        let scattered = Ray::new(Vec3::default(), Vec3::default());
+        let attenutation = Vec3::default();
 
-    if world.hit(r, 0.0, f64::MAX, &mut rec) {
-        let target = rec.p() + rec.normal() + random_in_unit_sphere();
-        return ray_color(&Ray::new(rec.p(), target - rec.p()), &world) * 0.5;
+        if depth < 50 && scatter(&rec.material, r, &rec,&mut attenutation, &mut scattered){
+            return attenutation * ray_color(&scattered, world, depth + 1);
+        }
+        else {
+            return Vec3::new(0.0, 0.0, 0.0);
+        }
     } 
     else {
         let unit_direction = Vec3::unit_vector(&r.direction());
         let t = 0.5 * (unit_direction.y() + 1.0);
 
         Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
-    }
-}
-
-fn random_in_unit_sphere() -> Vec3 {
-    let mut p = Vec3::default();
-    let mut rng = rand::thread_rng();
-
-    loop {
-        p = Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 2.0
-            - Vec3::new(1.0, 1.0, 1.0);
-
-        if p.squared_length() < 1.0 {
-            return p;
-        }
     }
 }
 

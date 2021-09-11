@@ -6,41 +6,14 @@ use crate::material::Material;
 
 #[derive(Default)]
 pub struct HitRecord{
-    p: Point3,
-    normal: Vec3,
-    t: f64,
-    pub front_face: bool,
-    material: Material,
-}
-
-impl HitRecord{
-    pub fn p(&self) -> Vec3{
-        self.p
-    }
-
-    pub fn t(&self) -> f64{
-        self.t
-    }
-
-    pub fn normal(&self) -> Vec3{
-        self.normal
-    }
-
-    pub fn set_p(&mut self, val: Vec3){
-        self.p = val
-    }
-
-    pub fn set_t(&mut self, val: f64){
-        self.t = val
-    }
-
-    pub fn set_normal(&mut self, val: Vec3){
-        self.normal = val
-    }
+    pub p: Point3,
+    pub normal: Vec3,
+    pub t: f64,
+    pub material: Material,
 }
 
 pub trait Hittable{
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, record: &mut HitRecord) -> bool {
-        false
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        None
     }
 }
