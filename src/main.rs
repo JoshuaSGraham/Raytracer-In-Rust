@@ -19,10 +19,10 @@ mod vec3;
 mod material;
 
 fn ray_color(r: &Ray, world: &HittableList, depth: i64) -> Vec3 {
-    
+
     if let Some(rec) = world.hit(r, 0.001, f64::MAX) {
-        let scattered = Ray::new(Vec3::default(), Vec3::default());
-        let attenutation = Vec3::default();
+        let mut scattered = Ray::new(Vec3::default(), Vec3::default());
+        let mut attenutation = Vec3::default();
 
         if depth < 50 && scatter(&rec.material, r, &rec,&mut attenutation, &mut scattered){
             return attenutation * ray_color(&scattered, world, depth + 1);
@@ -50,8 +50,22 @@ fn main() {
 
     // World
     let mut list: Vec<Box<dyn Hittable>> = Vec::new();
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)));
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Material::Lambertian{
+        albedo: Vec3::new(0.8, 0.3, 0.3),
+    },
+    )));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Material::Lambertian{
+        albedo: Vec3::new(0.8, 0.8, 0.0),
+    },
+    )));
+    list.push(Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 100.0, Material::Metal{
+        albedo: Vec3::new(0.8, 0.6, 0.2),
+    },
+    )));
+    list.push(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 100.0, Material::Metal{
+        albedo: Vec3::new(0.8, 0.8, 0.8),
+    },
+    )));
     let world = HittableList::new(list);
 
     let cam = Camera::camera();
@@ -70,7 +84,7 @@ fn main() {
                 let v = (height_index as f64 + rng.gen::<f64>()) / (image_height) as f64;
 
                 let r = &cam.get_ray(u, v);
-                color = color + ray_color(&r, &world);
+                color = color + ray_color(&r, &world, 0);
             }
 
             color = color / sample_count as f64;

@@ -4,6 +4,7 @@ use crate::vec3::Vec3;
 
 use rand::prelude::*;
 
+#[derive(Clone, Copy)]
 pub enum Material {
     Lambertian { albedo: Vec3 },
     Metal { albedo: Vec3 },
@@ -32,7 +33,7 @@ pub fn scatter(material: &Material, ray_in: &Ray, record: &HitRecord, attentuati
             *attentuation = albedo;
             return Vec3::dot(&scattered.direction(), &record.normal) > 0.0;
         },
-        &Material::Dielectric {  } => todo!(),
+        &Material::Dielectric {  } => false,
     } 
 }
 
