@@ -1,5 +1,5 @@
 use core::f64;
-use std::{ops, usize};
+use std::{ops, process::Output, usize};
 
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct Vec3{
@@ -100,26 +100,40 @@ impl ops::Div<f64> for Vec3{
     }
 }
 
-impl ops::Mul for Vec3{
-    type Output = Self;
-    fn mul(self, rhs:Self) -> Self{
-        Self{
-            x: self.x * rhs.x,
-            y: self.y * rhs.y,
-            z: self.z * rhs.z,
+impl ops::Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Vec3{
+            x: rhs.x() * self,
+            y: rhs.y() * self,
+            z: rhs.z() * self,
         }
     }
 }
 
-impl ops::Mul<f64> for Vec3{
-    type Output = Vec3;
-    fn mul(self, rhs:f64) -> Vec3{
-        Vec3{
-            x: self.x * rhs,
-            y: self.y * rhs,
-            z: self.z * rhs,
+impl ops::Mul<f64> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vec3 {
+            x: self.x() * rhs,
+            y: self.y() * rhs,
+            z: self.z() * rhs,
         }
     }
+}
+
+impl ops::Mul for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Vec3{
+            x: self.x() * rhs.x(),
+            y: self.y() * rhs.y(),
+            z: self.z() * rhs.z(),
+        }
+    } 
 }
 
 impl ops::AddAssign for Vec3{

@@ -7,7 +7,7 @@ use rand::prelude::*;
 #[derive(Clone, Copy)]
 pub enum Material {
     Lambertian { albedo: Vec3 },
-    Metal { albedo: Vec3 },
+    Metal { albedo: Vec3, fuzz: f64 },
     Dielectric {},
 }
 
@@ -27,9 +27,14 @@ pub fn scatter(material: &Material, ray_in: &Ray, record: &HitRecord, attentuati
             *attentuation = albedo;
             return true;
         },
-        &Material::Metal { albedo } => {
+        &Material::Metal { albedo, fuzz } => {
+            let mut f = 1.0;
+            if fuzz < 1.0 {
+                f = fuzz;
+            }
+
             let reflected = reflect(&Vec3::unit_vector(&ray_in.direction()), &record.normal);
-            *scattered = Ray::new(record.p, reflected);
+            *scattered = Ray::new(record.p, reflected + f * random_in_unit_sphere());
             *attentuation = albedo;
             return Vec3::dot(&scattered.direction(), &record.normal) > 0.0;
         },
@@ -39,7 +44,7 @@ pub fn scatter(material: &Material, ray_in: &Ray, record: &HitRecord, attentuati
 
 // todo: check maths on this
 fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
-   *v - (*n * (2.0 * Vec3::dot(v, n)))
+   *v - 2.0 * Vec3::dot(v, n) * *n 
 }
 
 fn random_in_unit_sphere() -> Vec3 {
@@ -47,8 +52,7 @@ fn random_in_unit_sphere() -> Vec3 {
     let mut rng = rand::thread_rng();
 
     loop {
-        p = Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 2.0
-            - Vec3::new(1.0, 1.0, 1.0);
+        p = 2.0 * Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) - Vec3::new(1.0, 1.0, 1.0);
 
         if p.squared_length() < 1.0 {
             return p;
