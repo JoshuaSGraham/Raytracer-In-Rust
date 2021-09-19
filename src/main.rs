@@ -51,25 +51,25 @@ fn main() {
     // World
     let mut list: Vec<Box<dyn Hittable>> = Vec::new();
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Material::Lambertian{
-        albedo: Vec3::new(0.8, 0.3, 0.3),
+        albedo: Vec3::new(0.1, 0.2, 0.5),
     },
     )));
     list.push(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Material::Lambertian{
         albedo: Vec3::new(0.8, 0.8, 0.0),
     },
     )));
+
     list.push(Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, Material::Metal{
         albedo: Vec3::new(0.8, 0.6, 0.2),
-        fuzz: 0.3,
+        fuzz: 0.0,
     },
     )));
-    list.push(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, Material::Metal{
-        albedo: Vec3::new(0.8, 0.8, 0.8),
-        fuzz: 1.0,
+    list.push(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, Material::Dielectric{
+        ref_idx: 1.5,
     },
     )));
+    
     let world = HittableList::new(list);
-
     let cam = Camera::camera();
     let mut rng = rand::thread_rng();
 
@@ -77,7 +77,7 @@ fn main() {
     print!("P3\n{} {}\n{}\n", image_width, image_height, max_value);
 
     for height_index in (0..image_height).rev() {
-        //eprint!("\rScanlines remaining: {}", height_index);
+        eprint!("\rScanlines remaining: {}", height_index);
         for width_index in 0..image_width {
             let mut color = Vec3::default();
 
@@ -99,5 +99,5 @@ fn main() {
             println!("{} {} {}", ir, ig, ib);
         }
     }
-    //eprintln!("\nDone");
+    eprintln!("\nDone");
 }

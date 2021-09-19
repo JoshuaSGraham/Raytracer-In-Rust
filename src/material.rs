@@ -8,7 +8,7 @@ use rand::prelude::*;
 pub enum Material {
     Lambertian { albedo: Vec3 },
     Metal { albedo: Vec3, fuzz: f64 },
-    Dielectric {},
+    Dielectric { ref_idx: f64 },
 }
 
 impl Default for Material {
@@ -38,14 +38,57 @@ pub fn scatter(material: &Material, ray_in: &Ray, record: &HitRecord, attentuati
             *attentuation = albedo;
             return Vec3::dot(&scattered.direction(), &record.normal) > 0.0;
         },
-        &Material::Dielectric {  } => false,
+        &Material::Dielectric { ref_idx } =>{
+
+            let mut outward_normal = Vec3::default();
+            let reflected = reflect(&ray_in.direction(), &record.normal);
+
+            let mut ni_over_nt = 0.0;
+            *attentuation = Vec3::new(1.0, 1.0, 0.0);
+            let mut refracted = Vec3::default();
+
+            if Vec3::dot(&ray_in.direction(), &record.normal) > 0.0 {
+                // if we get wrong results look into neg implementation
+                outward_normal = -record.normal;
+                ni_over_nt = ref_idx;
+            }
+            else {
+                outward_normal = record.normal;
+                ni_over_nt = 1.0 / ref_idx;
+            }
+
+            if refract(&ray_in.direction(), &outward_normal, ni_over_nt, &mut refracted){
+                *scattered = Ray::new(record.p, refracted);
+            }
+            else {
+                *scattered = Ray::new(record.p, reflected);
+                return false;
+            }
+
+            return true;
+        },
     } 
 }
 
-// todo: check maths on this
 fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
    *v - 2.0 * Vec3::dot(v, n) * *n 
 }
+
+fn refract(v: &Vec3, n: &Vec3, ni_over_nt: f64, refracted: &mut Vec3) -> bool{
+
+    let uv = Vec3::unit_vector(v);
+    let dt = Vec3::dot(&uv, n);
+    let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+
+    if discriminant > 0.0 {
+        *refracted = ni_over_nt * (uv - *n * dt) - *n * discriminant.sqrt();
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 
 fn random_in_unit_sphere() -> Vec3 {
     let mut p = Vec3::default();
