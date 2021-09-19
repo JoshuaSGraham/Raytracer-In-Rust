@@ -44,7 +44,7 @@ pub fn scatter(material: &Material, ray_in: &Ray, record: &HitRecord, attentuati
             let reflected = reflect(&ray_in.direction(), &record.normal);
 
             let mut ni_over_nt = 0.0;
-            *attentuation = Vec3::new(1.0, 1.0, 0.0);
+            *attentuation = Vec3::new(1.0, 1.0, 1.0);
             let mut refracted = Vec3::default();
 
             if Vec3::dot(&ray_in.direction(), &record.normal) > 0.0 {
