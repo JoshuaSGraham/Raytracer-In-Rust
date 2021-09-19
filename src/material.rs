@@ -47,25 +47,41 @@ pub fn scatter(material: &Material, ray_in: &Ray, record: &HitRecord, attentuati
             *attentuation = Vec3::new(1.0, 1.0, 1.0);
             let mut refracted = Vec3::default();
 
+            let mut reflect_prob = 0.0;
+            let mut cosine = 0.0;
+
+
+
             if Vec3::dot(&ray_in.direction(), &record.normal) > 0.0 {
                 // if we get wrong results look into neg implementation
                 outward_normal = -record.normal;
                 ni_over_nt = ref_idx;
+                cosine = ref_idx * Vec3::dot(&ray_in.direction(), &record.normal) / ray_in.direction().length();
             }
             else {
                 outward_normal = record.normal;
                 ni_over_nt = 1.0 / ref_idx;
+                cosine = -Vec3::dot(&ray_in.direction(), &record.normal) / ray_in.direction().length();
             }
 
             if refract(&ray_in.direction(), &outward_normal, ni_over_nt, &mut refracted){
-                *scattered = Ray::new(record.p, refracted);
+
+                reflect_prob = schlick(cosine, ref_idx);
             }
-            else {
-                *scattered = Ray::new(record.p, reflected);
-                return false;
+            else{
+                reflect_prob = 1.0;
             }
 
-            return true;
+            let mut rng = rand::thread_rng();
+
+           if rng.gen::<f64>() < reflect_prob {
+               *scattered = Ray::new(record.p, reflected)
+           }
+           else {
+               *scattered = Ray::new(record.p, refracted);
+           }
+
+           return true;
         },
     } 
 }
@@ -87,6 +103,13 @@ fn refract(v: &Vec3, n: &Vec3, ni_over_nt: f64, refracted: &mut Vec3) -> bool{
     else {
         return false;
     }
+}
+
+fn schlick(cosine: f64, ref_idx: f64) -> f64 {
+
+    let mut r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+    r0 = r0 * r0;
+    return r0 + (1.0 - r0) * (1.0 - cosine).powi(5);
 }
 
 

@@ -43,7 +43,7 @@ fn main() {
     //image
 
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
+    let image_width = 600;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
     let max_value = 255;
     let sample_count = 100;
@@ -61,10 +61,14 @@ fn main() {
 
     list.push(Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, Material::Metal{
         albedo: Vec3::new(0.8, 0.6, 0.2),
-        fuzz: 0.0,
+        fuzz: 0.3,
     },
     )));
     list.push(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, Material::Dielectric{
+        ref_idx: 1.5,
+    },
+    )));
+    list.push(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45, Material::Dielectric{
         ref_idx: 1.5,
     },
     )));
