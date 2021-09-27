@@ -75,7 +75,7 @@ fn main() {
     
     let world = HittableList::new(list);
 
-    let cam = Camera::camera();
+    let cam = Camera::camera(Vec3::new(-2.0, 2.0, 1.0), Vec3::new(0.0, 0.0, -1.0), Vec3::new(0.0, 1.0, 0.0), 90.0, image_width as f64 / image_height as f64);
     let mut rng = rand::thread_rng();
 
     //Render
