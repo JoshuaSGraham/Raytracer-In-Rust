@@ -42,9 +42,8 @@ fn ray_color(r: &Ray, world: &HittableList, depth: i64) -> Vec3 {
 fn main() {
     //image
 
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width = 450;
-    let image_height = (image_width as f64 / aspect_ratio) as i32;
+    let image_width = 800;
+    let image_height = 400;
     let max_value = 255;
     let sample_count = 100;
 

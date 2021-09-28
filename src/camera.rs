@@ -32,12 +32,12 @@ impl Camera {
 
             origin,
             lower_left_corner: origin - half_width * u - half_height * v - w,
-            horizontal: 2.0 * half_height * u,
+            horizontal: 2.0 * half_width * u,
             vertical: 2.0 * half_height * v,
         }
     }
 
     pub fn get_ray(&self, u: f64, v: f64) -> Ray{
-        Ray::new(self.origin, self.lower_left_corner + self.horizontal * u + self.vertical * v - self.origin)
+        Ray::new(self.origin, self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin)
     }
 }
