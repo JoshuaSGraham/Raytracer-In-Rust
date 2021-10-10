@@ -1,6 +1,6 @@
 use crate::vec3::Vec3;
 use crate::ray::Ray;
-
+use rand::prelude::*;
 
 
 pub struct Camera {
@@ -8,36 +8,52 @@ pub struct Camera {
     lower_left_corner: Vec3,
     horizontal: Vec3,
     vertical: Vec3,
-
+    lens_radius: f64,
+    u: Vec3,
+    v: Vec3,
+    w: Vec3,
 }
 
 impl Camera {
-    pub fn camera(look_from: Vec3, look_at: Vec3, vup: Vec3, vfov: f64, aspect: f64) -> Camera {
+    pub fn camera(look_from: Vec3, look_at: Vec3, vup: Vec3, vfov: f64, aspect: f64, aperture: f64, focus_dist: f64) -> Camera {
 
-        let mut u = Vec3::default();
-        let mut v = Vec3::default();
-        let mut w = Vec3::default();
-
-
+        let lens_radius = aperture / 2.0;
         let theta = vfov * std::f64::consts::PI / 180.0;
         let half_height = (theta / 2.0).tan();
         let half_width = aspect * half_height;
 
         let origin = look_from;
-        w = Vec3::unit_vector(&(look_from - look_at));
-        u = Vec3::unit_vector(&Vec3::cross(&vup, &w));
-        v = Vec3::cross(&w, &u);
+        let w = Vec3::unit_vector(&(look_from - look_at));
+        let u = Vec3::unit_vector(&Vec3::cross(&vup, &w));
+        let v = Vec3::cross(&w, &u);
 
         Camera {
 
             origin,
-            lower_left_corner: origin - half_width * u - half_height * v - w,
-            horizontal: 2.0 * half_width * u,
-            vertical: 2.0 * half_height * v,
+            lower_left_corner: origin - half_width * focus_dist * u - half_height * v - focus_dist * w,
+            horizontal: 2.0 * half_width * focus_dist * u,
+            vertical: 2.0 * half_height * focus_dist * v,
+            lens_radius,
+            u,
+            v,
+            w,        
         }
     }
 
-    pub fn get_ray(&self, u: f64, v: f64) -> Ray{
-        Ray::new(self.origin, self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin)
+    pub fn get_ray(&self, s: f64, t: f64) -> Ray{
+        let rd = self.lens_radius * random_in_unit_disk();
+        let offset = self.u * rd.x() + self.v * rd.y();
+        Ray::new(self.origin + offset, self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset)
+    }
+}
+
+fn random_in_unit_disk() -> Vec3{
+    let mut rng = rand::thread_rng();
+    loop {
+        let p = Vec3::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0), 0.0);
+        if p.squared_length() >= 1.0 {
+            continue;
+        }
+        return p;
     }
 }

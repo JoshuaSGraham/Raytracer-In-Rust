@@ -1,6 +1,8 @@
 use core::f64;
 use std::{ops, process::Output, usize};
 
+use rand::Rng;
+
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct Vec3{
 
@@ -50,6 +52,25 @@ impl Vec3 {
     pub fn unit_vector(v: &Vec3) -> Vec3{
         *v / v.length()
     } 
+
+    pub fn random() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Vec3 {
+            x: rng.gen::<f64>(),
+            y: rng.gen::<f64>(),
+            z: rng.gen::<f64>(),
+        }
+    }
+
+    pub fn random_init(min: f64, max: f64) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Vec3 {
+            
+                x: rng.gen_range(min..max),
+                y: rng.gen_range(min..max),
+                z: rng.gen_range(min..max),
+        }
+    }
 }
 
 //type aliasing
